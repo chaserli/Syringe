@@ -11,38 +11,38 @@
 
 namespace Injector
 {
-	using namespace PECOFF;
+    using namespace PECOFF;
 
-	class HookRetriever final
-	{
-	public:
-		static size_t constexpr				ProcNameLength = sizeof(char) * (MaxProcNameLength + 1);
-	public:
-		ProcessMemory&						Memory;
-		Kernel32&									Kernel;
-		list<Module>&							Modules;
+    class HookRetriever final
+    {
+    public:
+        static size_t constexpr ProcNameLength = sizeof(char) * (MaxProcNameLength + 1);
+    public:
+        ProcessMemory& Memory;
+        Kernel32&      Kernel;
+        list<Module>&  Modules;
 
-		size_t										BreakpointOffset;
-		size_t const								TotalHookCount;
+        size_t               BreakpointOffset;
+        size_t const         TotalHookCount;
 
-		VirtualMemoryHandle*				InitFuncNameVmh;
-		VirtualMemoryHandle*				FuncNamesVmh;
-		VirtualMemoryHandle*				InitFunctionsVmh;
-		VirtualMemoryHandle*				HookFunctionsVmh;
-		VirtualMemoryHandle*				ProgramVmh;
+        VirtualMemoryHandle* InitFuncNameVmh;
+        VirtualMemoryHandle* FuncNamesVmh;
+        VirtualMemoryHandle* InitFunctionsVmh;
+        VirtualMemoryHandle* HookFunctionsVmh;
+        VirtualMemoryHandle* ProgramVmh;
 
-		PrefixCode									PrxCode;
-		vector<GetProcAddressCode>		CodeBlocks;
-		PostfixCode								PstxCode;
+        PrefixCode                 PrxCode;
+        vector<GetProcAddressCode> CodeBlocks;
+        PostfixCode                PstxCode;
 
-		HookRetriever(
-			ProcessMemory& memory,
-			Kernel32& kernel,
-			list<Module>& modules);
-		~HookRetriever();
-		
-		Address breakpoint() const;
-		Address instruction() const;
-	};
+        HookRetriever(
+            ProcessMemory& memory,
+            Kernel32& kernel,
+            list<Module>& modules);
+        ~HookRetriever();
+        
+        Address breakpoint() const;
+        Address instruction() const;
+    };
 }
 #endif //INJECTOR_HOOK_RETRIEVER_HPP
