@@ -7,50 +7,50 @@
 #pragma warning(disable : 4324)
 struct alignas(16) HookDecl
 {
-	DWORD			Address;
-	size_t			Size;
-	DWORD			FunctionNamePtr;
+    DWORD  Address;
+    size_t Size;
+    DWORD  FunctionNamePtr;
 };
 
 struct alignas(32) ExtendedHookDecl
 {
-	DWORD			Address;
-	size_t			Size;
-	DWORD			FunctionNamePtr;
-	DWORD			ModuleNamePtr;
-	unsigned int	ModuleChecksum;
+    DWORD        Address;
+    size_t       Size;
+    DWORD        FunctionNamePtr;
+    DWORD        ModuleNamePtr;
+    unsigned int ModuleChecksum;
 };
 
 struct alignas(16) HostDecl
 {
-	unsigned int	Checksum;
-	DWORD			NamePtr;
+    unsigned int Checksum;
+    DWORD        NamePtr;
 };
 #pragma warning(pop)
 #else
 #pragma pack(push, 16)
 #pragma warning(push)
-#pragma warning( disable : 4324)
+#pragma warning(disable : 4324)
 __declspec(align(16)) struct HookDecl
 {
-	unsigned int	Address;
-	unsigned int	Size;
-	const char*	FunctionNamePtr;
+    unsigned int Address;
+    unsigned int Size;
+    const char*  FunctionNamePtr;
 };
 
 __declspec(align(32)) struct ExtendedHookDecl
 {
-	unsigned int	Address;
-	unsigned int	Size;
-	const char*	FunctionNamePtr;
-	const char*	ModuleNamePtr;
-	unsigned int	ModuleChecksum;
+    unsigned int    Address;
+    unsigned int    Size;
+    const char*    FunctionNamePtr;
+    const char*    ModuleNamePtr;
+    unsigned int    ModuleChecksum;
 };
 
 __declspec(align(16)) struct HostDecl
 {
-	unsigned int	Checksum;
-	const char*	NamePtr;
+    unsigned int    Checksum;
+    const char*    NamePtr;
 };
 #pragma warning(pop)
 #pragma pack(pop)
