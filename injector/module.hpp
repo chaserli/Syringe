@@ -4,6 +4,7 @@
 #include <portable_executable.hpp>
 #include <handle.win.hpp>
 #include <exceptions.win.hpp>
+#include <winapi.utilities.hpp>
 
 #include "framework.hpp"
 #include "hook.hpp"
@@ -54,10 +55,11 @@ namespace Injector
         };
 
         string       FileName;
+        Utilities::FileVersionInformation FVI;
         unsigned int Checksum;
         list<Hook>   Hooks;
         list<Host>   Hosts;
-        // it's idea about Initialize(...) function concept, which invokes before main thread resumed or at moment when it's resumed. Invokcation not implemented. Just use hook at top of program.
+        // it's idea about Initialize(...) function concept, which invokes before main thread resumed or at moment when it's resumed. Invocation not implemented. Just use hook at top of program.
         InitFunction InitFunction;
     private:
         HMODULE                    _handle;
@@ -68,17 +70,19 @@ namespace Injector
         void parse_hosts();
         void parse_generic_hooks();
         void parse_extended_hooks();
+        void parse_function_replacements_type0();
+        void parse_function_replacements_type1();
         void parse_inj_file(string_view const& injFileName);
     public:
         std::istream&                     stream()   { return _ifs; }
         PECOFF::PortableExecutable const& pe() const { return _pe; }
 
         Module() = default;
-        Module(string_view const& fileName);
-        Module(string_view const& fileName, string_view const& injFileName);
+        Module(string_view const& fileName, bool strictFVI = false);
+        Module(string_view const& fileName, string_view const& injFileName, bool strictFVI = false);
 
-        void parse(string_view const& fileName);
-        void parse(string_view const& fileName, string_view const& injFileName);
+        void parse(string_view const& fileName, bool strictFVI = false);
+        void parse(string_view const& fileName, string_view const& injFileName, bool strictFVI = false);
 
         bool is_host_supported(string_view const& executableFile, unsigned int checksum = 0);
         bool is_executable_supported(string_view const& executableFile, unsigned int checksum = 0);
