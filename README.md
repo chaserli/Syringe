@@ -25,6 +25,8 @@ Just use this command line argument: `-dll ${filenameOfDll}` as many as you need
 
 See defiitions and macroses at [`Include/Syringe.h`](Include/Syringe.h).
 
+**Recommendation: always use *extended hook* instead of *generic hook* (and do not use `nullptr` case for name for extended hooks) to prevent problems with dynamic module base when basic address is different. Also, it should help with ASLR (need testing).**
+
 ### Generic Hook
 
 Common original syringe hook. Can be placed only at executable and there is no any conditions for disable it.
@@ -34,8 +36,9 @@ Common original syringe hook. Can be placed only at executable and there is no a
 
 1. ***Address***
     The address where hook will be placed.
+    ***This is absolute address for hook placement: `AbsoluteAddress = ModuleBase + Offset`***.
 2. ***Function name***
-    Hook related functions.
+    Hook related function.
 3. ***Overriden bytes (of instrutions)***
     Count of bytes to override at hook placement. Minimal: 5 (injector fix any smaller value). If 'hook pocket' executes all functions and there is no jump out then instruction of this bytes will be executed before jump back.
 
@@ -48,8 +51,10 @@ Extended version of generic hook. It is possible place it againts specific DLL a
 
 1. ***Address***
     The address where hook will be placed.
+    ***This is relative address (offset) for hook placement: `AbsoluteAddress = ModuleBase + Offset`***.
+    ***If module specified as `nullptr` then absolute address placement present like generic hook.***
 2. ***Function name***
-    Hook related functions.
+    Hook related function.
 3. ***Overriden bytes (of instrutions)***
     Count of bytes to override at hook placement. Minimal: 5 (injector fix any smaller value). If 'hook pocket' executes all functions and there is no jump out then instruction of this bytes will be executed before jump back.
 4. **Prefix**
@@ -60,6 +65,58 @@ Extended version of generic hook. It is possible place it againts specific DLL a
 6. **Checksum**
     CRC32 value. Hook will be placed againts module with specific checksum. Can be used for versioning.
     ***`0` is special value which mean any module version.***
+
+### Function redefine (deco hook)
+
+Function redefine or deco hook it is a hook that used to reimplement original function. Injector has two variations of such hook.
+
+**If several function redefinitions present, only one will be selected. And selected one will first declared. It depends on modules (dlls) order.**
+
+#### By Name
+
+***USE THIS VERSION ONLY IF TARGET FUNCTION IS EXPORTED.***
+
+**Macro:** `REDEFINE_FUNCTION`& `REDEFINE_FUNCTION_AGAIN`.
+**Parameters:**
+
+1. **Original function name**
+    The function to redefine from target module.
+    Function must be exported. Injector automatically will seek address of this function and use it.
+2. **Function name**
+    Hook related functions.
+3. **Prefix**
+    Just internal identifier to split up hook definitions with same name.
+4. **Name**
+    Name of target module. If File version info (FVI) present then name of it will be used. If FVI is not present then filename will be used.
+    ***`nullptr` is special value which target module is current executable.***
+5. **Checksum**
+    CRC32 value. Hook will be placed againts module with specific checksum. Can be used for versioning.
+    ***`0` is special value which mean any module version.***
+6. **Return type**
+    Return type of function to declare it in-place.
+7. **...**
+    Variadic arguments of function parameters to declare it in-place.
+
+#### By Address
+
+**Macro:** `REDEFINE_AT`& `REDEFINE_AT_AGAIN`.
+
+1. **Target address**
+    The first instruction address of target function.
+2. **Function name**
+    Hook related functions.
+3. **Prefix**
+    Just internal identifier to split up hook definitions with same name.
+4. **Name**
+    Name of target module. If File version info (FVI) present then name of it will be used. If FVI is not present then filename will be used.
+    ***`nullptr` is special value which target module is current executable.***
+5. **Checksum**
+    CRC32 value. Hook will be placed againts module with specific checksum. Can be used for versioning.
+    ***`0` is special value which mean any module version.***
+6. **Return type**
+    Return type of function to declare it in-place.
+7. **...**
+    Variadic arguments of function parameters to declare it in-place.
 
 ## Hosts
 
