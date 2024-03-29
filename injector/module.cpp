@@ -288,6 +288,7 @@ namespace Injector
     }
     bool Module::is_executable_supported(string_view const& executableFile, unsigned int checksum)
     {
-        return is_host_supported(executableFile, checksum) || handshake();
+        Utilities::FileVersionInformation fvi { executableFile.data() };
+        return is_host_supported(fvi.Loaded ? fvi.OriginalFilename : executableFile, checksum) || handshake();
     }
 }
