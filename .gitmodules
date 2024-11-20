@@ -2,3 +2,9 @@
 	path = utilities
 	url = https://github.com/Multfinite/cpp_utilities.git
 	branch = master
+[submodule "3rdparty/spdlog"]
+	path = 3rdparty/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "3rdparty/fmt"]
+	path = 3rdparty/fmt
+	url = https://github.com/fmtlib/fmt.git
