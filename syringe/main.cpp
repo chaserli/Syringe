@@ -14,7 +14,7 @@ using namespace Injector;
 using namespace PECOFF;
 
 int ParseModule(
-    Module& mdl, 
+    Module& mdl,
     bool forceExecutableValidation,
     bool stopIfModuleInvalid,
     bool strictFVI)
@@ -28,7 +28,7 @@ int ParseModule(
     }
     catch (file_not_found_error const& ex)
     {
-        auto msg = Utilities::string_format("File not found: \"%s\".", ex.FileName.c_str());
+        auto msg = fmt::format("File not found \" {} \".", ex.FileName);
         spdlog::error("::\"{}\": File not found.", ex.FileName);
         if (stopIfModuleInvalid)
         {
@@ -42,7 +42,7 @@ int ParseModule(
     }
     catch (non_injectable_module_error const& ex)
     {
-        auto msg = Utilities::string_format("Couldn't inject dll: %s.\nThis is not injectable.", ex.FileName.c_str());
+        auto msg = fmt::format("Couldn't inject dll: {}.\nThis is not injectable.", ex.FileName);
         spdlog::error("::\"{}\": not injectable.", ex.FileName);
         if (stopIfModuleInvalid)
         {
@@ -56,7 +56,7 @@ int ParseModule(
     }
     catch (executable_not_supported_error const& ex)
     {
-        auto msg = Utilities::string_format("Couldn't inject dll: %s.\Executable not supported by module.\nYou can disable '-forceExecutableValidation' to skip checking.", ex.FileName.c_str());
+        auto msg = fmt::format("Couldn't inject dll: {}. Executable not supported by module.\nYou can disable '-forceExecutableValidation' to skip checking.", ex.FileName);
         spdlog::error("::\"{}\": executable not supported.", ex.FileName);
         if (stopIfModuleInvalid) 
         {
@@ -70,7 +70,7 @@ int ParseModule(
     }
     catch (const file_read_error& ex)
     {
-        auto msg = Utilities::string_format("File not found/not readable: %s.", mdl.FileName.c_str());
+        auto msg = fmt::format("File not found/not readable: {}.", mdl.FileName);
         spdlog::error("::\"{}\": File not found/not readable", mdl.FileName);
         if (stopIfModuleInvalid)
         {
@@ -183,7 +183,7 @@ int Run(std::string_view const arguments)
 {
     auto file_logger = spdlog::basic_logger_mt("file-logger", "syringe.log", true);
 
-    spdlog::set_pattern("%v");
+    spdlog::set_pattern("[%H:%M:%S.%e] %v");
     spdlog::set_level(spdlog::level::trace);
     spdlog::set_default_logger(file_logger);
 
@@ -323,7 +323,5 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(nCmdShow);
 
-    std::string args = lpCmdLine;
-
-    return Run(args);
+    return Run(lpCmdLine);
 }
