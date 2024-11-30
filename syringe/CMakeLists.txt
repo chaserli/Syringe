@@ -12,7 +12,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #	#if(WIN32)
 #	#	add_compile_options(-march=x86-64)
 #	#endif()
-#	#add_compile_options(-m64)					# 
+#	#add_compile_options(-m64)					#
 #	#add_compile_options(-g)						# debug info, system specific
 #	add_compile_options(-Og)						# optimization: debug
 #	add_compile_options(-std=c++17)			# C++ standard
@@ -31,7 +31,11 @@ include_directories("${CMAKE_SOURCE_DIR}/debugger")
 include_directories("${CMAKE_SOURCE_DIR}/include")
 include_directories("${CMAKE_SOURCE_DIR}/injector")
 
-add_executable (syringe WIN32 ${src})
+add_executable (syringe ${src})
+
+set_target_properties(syringe PROPERTIES
+    WIN32_EXECUTABLE $<$<NOT:$<CONFIG:Debug>>:ON>
+)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(syringe PUBLIC fmt::fmt-header-only)

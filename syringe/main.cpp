@@ -4,7 +4,7 @@
 
 #define SPDLOG_HEADER_ONLY
 #include <spdlog/spdlog.h>
-
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <cmd_line_parser.hpp>
 #include <debugger.hpp>
 #include <configurator.hpp>
@@ -58,7 +58,7 @@ int ParseModule(
     {
         auto msg = fmt::format("Couldn't inject dll: {}. Executable not supported by module.\nYou can disable '-forceExecutableValidation' to skip checking.", ex.FileName);
         spdlog::error("::\"{}\": executable not supported.", ex.FileName);
-        if (stopIfModuleInvalid) 
+        if (stopIfModuleInvalid)
         {
             MessageBoxA(
                 nullptr,
@@ -86,7 +86,7 @@ int ParseModule(
 }
 
 int ParseModules(
-    list<Module>& modules, 
+    list<Module>& modules,
     bool forceExecutableValidation,
     bool processWithEmptyModules,
     bool stopIfModuleInvalid,
@@ -115,7 +115,7 @@ int ParseModules(
     }
     for (auto& mdl : notAccepted)
         modules.remove_if([&](Module& a) -> bool { return a.FileName == mdl->FileName; });
-    
+
     for (auto& mdl : modules)
     {
         spdlog::info("::\"{0}\" - checking for redefines", mdl.FileName);
@@ -181,18 +181,29 @@ int ParseModules(
 
 int Run(std::string_view const arguments)
 {
+#ifndef NDEBUG
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    console_sink->set_level(spdlog::level::info);
+    // console_sink->set_pattern("[%H:%M:%S.%e] %v");
+    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("syringe.log", true);
+    file_sink->set_pattern("[%H:%M:%S.%e] %v");
+    file_sink->set_level(spdlog::level::trace);
+
+    spdlog::logger logger("", { console_sink, file_sink });
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>(logger));
+#else
     auto file_logger = spdlog::basic_logger_mt("file-logger", "syringe.log", true);
 
     spdlog::set_pattern("[%H:%M:%S.%e] %v");
     spdlog::set_level(spdlog::level::trace);
     spdlog::set_default_logger(file_logger);
-
+#endif
     spdlog::trace("Working directory: {0}", std::filesystem::current_path().string());
     spdlog::trace("Command line: '{}'", arguments);
 
     string       executableFile;
     // UPD: the first entry - executable view as module
-    list<Module> modules; 
+    list<Module> modules;
     bool         forceExecutableValidation = false;
     bool         processWithEmptyModules   = true;
     bool         stopIfModuleInvalid       = false;
@@ -317,6 +328,7 @@ int Run(std::string_view const arguments)
     }
 }
 
+#ifdef NDEBUG
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hInstance);
@@ -325,3 +337,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     return Run(lpCmdLine);
 }
+#else
+int main()
+{
+    LPSTR lpCmdLine = GetCommandLineA();
+    return Run(lpCmdLine);
+}
+#endif
