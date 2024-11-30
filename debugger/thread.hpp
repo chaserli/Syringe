@@ -19,7 +19,7 @@ public:
     ProcessId    OwnerId        { 0 };
     Address      LastBreakpoint { nullptr };
     CONTEXT      Context        { };
-    
+
     Thread(Thread& other)                  = delete;
     Thread& operator=(Thread const& other) = delete;
 

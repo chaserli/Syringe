@@ -32,7 +32,7 @@ namespace Injector
 		PostfixCode						PstxCode;
 
 		size_t								BreakpointOffset;
-		
+
 		ModuleRetriever(
 			ProcessMemory& memory,
 			Kernel32& kernel,

@@ -8,7 +8,7 @@ namespace Injector
 {
     static constexpr size_t CallR32InstructionLength  = 5;
     static constexpr size_t JumpR32lInstructionLength = 5;
-    
+
     BYTE const PrefixCodeData[] =
     {
         PUSH_EAX
@@ -54,7 +54,7 @@ namespace Injector
         JMP_R32(INIT_PTR)
     };
     static constexpr size_t JumpCodeDataSize = sizeof(JumpCodeData);
-    
+
     #pragma pack(push, 1)
     struct JumpCode
     {
@@ -62,7 +62,7 @@ namespace Injector
         BYTE JumpOpCode;
         // Jump to relative address
         DWORD Offset;
-    
+
         JumpCode()
         {
             memcpy(this, JumpCodeData, JumpCodeDataSize);
@@ -71,7 +71,7 @@ namespace Injector
         {
             memcpy(this, JumpCodeData, JumpCodeDataSize);
             Offset = relative_offset(
-                reinterpret_cast<BYTE*>(base) + JumpR32lInstructionLength, 
+                reinterpret_cast<BYTE*>(base) + JumpR32lInstructionLength,
                 target);
         }
     };
@@ -85,7 +85,7 @@ namespace Injector
         CALL_R32(INIT_PTR)
     };
     static constexpr size_t CallCodeDataSize = sizeof(CallCodeData);
-    
+
     #pragma pack(push, 1)
     struct CallCode
     {
@@ -102,7 +102,7 @@ namespace Injector
         {
             memcpy(this, CallCodeData, CallCodeDataSize);
             Offset = relative_offset(
-                reinterpret_cast<BYTE*>(base) + JumpR32lInstructionLength, 
+                reinterpret_cast<BYTE*>(base) + JumpR32lInstructionLength,
                 func);
         }
     };

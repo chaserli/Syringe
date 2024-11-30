@@ -10,7 +10,7 @@ namespace Debugger
         //DebugProcess(arguments);
 
         DEBUG_EVENT dbgEvent;
-        
+
         MainThread->Resume();
 
         //Log::WriteLine(__FUNCTION__ ": Entering debug loop...");
@@ -35,15 +35,15 @@ namespace Debugger
                     ProcessDebugInfo = dbgEvent.u.CreateProcessInfo;
 
                     OnProcessCreated();
-                    
+
                     CloseHandle(dbgEvent.u.CreateProcessInfo.hFile);
                 }    break;
             case CREATE_THREAD_DEBUG_EVENT:
                 {
                     Thread& thread = ThreadMgr.FindOrEmplace(
-                        dbgEvent.dwThreadId, 
-                        dbgEvent.u.CreateThread.hThread);                
-                    OnThreadAdded(thread); 
+                        dbgEvent.dwThreadId,
+                        dbgEvent.u.CreateThread.hThread);
+                    OnThreadAdded(thread);
                 }    break;
             case EXIT_THREAD_DEBUG_EVENT:
                 {
@@ -91,5 +91,5 @@ namespace Debugger
         //Log::WriteLine(
             //__FUNCTION__ ": Done with exit code %X (%u).", exit_code, exit_code);
         //Log::WriteLine();
-    }    
+    }
 }

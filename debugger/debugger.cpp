@@ -37,7 +37,7 @@ namespace Debugger
         string args    = arguments.data();
 
         if (CreateProcess(
-            executablePath.data(), 
+            executablePath.data(),
             const_cast<LPSTR>(arguments.data()),
             nullptr, nullptr, false,
             DEBUG_ONLY_THIS_PROCESS | CREATE_SUSPENDED,
@@ -49,7 +49,7 @@ namespace Debugger
         _dbgProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, ProcessInfo.dwProcessId);
         Memory            = ProcessMemory { _dbgProcessHandle, freeMemory };
         ThreadMgr         = ThreadManager { _dbgProcessHandle };
-        
+
         MainThread        = &ThreadMgr.FindOrEmplace(ProcessInfo.dwThreadId, ProcessInfo.hThread);
     }
     DebugLoop::~DebugLoop()
@@ -67,7 +67,7 @@ namespace Debugger
         }
         throw dll_not_found_error { dllBaseName };
     }
-    
+
     void DebugLoop::SetBreakpoint(Address address)
     {
         Breakpoint& bp = Breakpoints[address];
@@ -105,7 +105,7 @@ namespace Debugger
             Breakpoint& bp = it->second;
             if(bp.IsWritten)
                 RestoreOpcode(bp);
-            
+
             Breakpoints.erase(it);
 
             return true;

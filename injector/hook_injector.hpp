@@ -113,12 +113,12 @@ namespace Injector
         }
         HookCallCode(
             Address refNextInstruction,
-            Address base, 
+            Address base,
             HookFunction hookFunction,
             Address moduleBase)
         {
             memcpy(this, HookCallCodeData, HookCallCodeDataSize);
-            
+
             ModuleBase          = reinterpret_cast<DWORD>(moduleBase);
 
             RefNextInstruction1 = refNextInstruction;
@@ -127,7 +127,7 @@ namespace Injector
             RefNextInstruction4 = refNextInstruction;
 
             FunctionProcRelativeAddress = relative_offset(
-                reinterpret_cast<BYTE*>(base) + HookCallCodeCallOffset + CallR32InstructionLength, 
+                reinterpret_cast<BYTE*>(base) + HookCallCodeCallOffset + CallR32InstructionLength,
                 static_cast<Address>(hookFunction));
         }
     };
@@ -149,8 +149,8 @@ namespace Injector
         vector<BYTE>         OriginalBytes;
         JumpCode             JumpBackCode;
     };
-    
-    
+
+
     struct Facade
     {
         Hook* Redefine;
@@ -166,7 +166,7 @@ namespace Injector
 
         VirtualMemoryHandle*     NextInstructionsVmh;
         VirtualMemoryHandle*     ProgramVmh;
-        
+
         map<Address, HookPocket> Pockets;
         map<Address, Facade> Facades;
 

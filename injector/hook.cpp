@@ -11,7 +11,7 @@ namespace Injector
         return h;
     }
 
-    Hook::Hook(std::string functionName, Address address, size_t size) 
+    Hook::Hook(std::string functionName, Address address, size_t size)
         : Hook(functionName, decl(address, size, nullptr)) {}
     Hook::Hook(std::string functionName, HookDecl& decl) :
         Type(HookType::Generic),

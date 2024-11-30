@@ -16,7 +16,7 @@ public:
     struct ThreadNotFoundException : std::runtime_error
     {
         ThreadId const TID;
-        ThreadNotFoundException(ThreadId tid) : TID(tid), 
+        ThreadNotFoundException(ThreadId tid) : TID(tid),
             std::runtime_error(Utilities::string_format("Thread [id = %u] not found.", tid)) {}
     };
     struct InvalidThreadOwnerIdException : std::runtime_error

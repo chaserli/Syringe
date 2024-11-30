@@ -61,7 +61,7 @@ namespace Injector
         memcpy(ArgumentsInStruct, Arguments.data(), Arguments.size() + 1);
         *NameLength            = maxNameLength;
         *ModuleSize            = Dlls.size();
-                    
+
         char* refName = reinterpret_cast<char*>(Names);
         HMODULE* refHandle = Handles;
         for (auto& pair : Dlls)

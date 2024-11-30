@@ -25,11 +25,11 @@ namespace Injector
     * @brief 3. Wait for kernel32.dll
     * @brief 4. Prepare a program to load all injectable modules: generate, write and execute. Extract all laoded handles from process.
     * @brief 5. Prepare a program to retieve all hook function addresses: generate, write and execute. Extract all data and set it to hooks.
-    * @brief 6. Iterate all hooks, check their inejction conditions, checksums, module names and sort it. 
+    * @brief 6. Iterate all hooks, check their inejction conditions, checksums, module names and sort it.
     * @brief 7. Generate for each hooked address a program, which will execute all related hook functions. Then write program and write jumps.
     * @brief 8. Assembly a context of execution (look for ContextEmplacer) and write it into shared memory: 'InjContext-$PID'. It is accessible from injected dlls.
     * @brief 9. Terminate loader thread and resume main thread.
-    * @brief NOTE 1: Executable can be protected via ASLR. Injector does not support it (need to create an algorithm which will seek new bases and perform address correction). 
+    * @brief NOTE 1: Executable can be protected via ASLR. Injector does not support it (need to create an algorithm which will seek new bases and perform address correction).
     * @brief NOTE 2: Stack can be protected and then hook invocation to it will cause invalid data inside function.
     */
     class Configurator final
@@ -44,7 +44,7 @@ namespace Injector
                 Current(current)
             {}
         };
-        // 
+        //
         struct Kernel32InvalidBaseAddressException : InvalidBaseAddressException
         {
             Kernel32InvalidBaseAddressException(LPVOID preffered, LPVOID current) : InvalidBaseAddressException(preffered, current) {}
@@ -54,7 +54,7 @@ namespace Injector
         {
             DynamicBaseUnsupportedException(LPVOID preffered, LPVOID current) : InvalidBaseAddressException(preffered, current) {}
         };
-    private:        
+    private:
         //
         PortableExecutable& _peFile;
         DebugLoop&          _debugger;
@@ -63,13 +63,13 @@ namespace Injector
 
         string_view const&  _arguments;
         string_view const&  _executableName;
-        
+
         //InjectionContext _context;
         //VirtualMemoryHandle& _contextVmh;
 
         WaiterCode           _waiterCode;
         VirtualMemoryHandle& _waiterVmh;
-        
+
         ModuleRetriever* _moduleRetriever;
         HookRetriever*   _hookRetriever;
         HookInjector*    _hookInjector;
@@ -93,7 +93,7 @@ namespace Injector
     public:
         Configurator(
             PortableExecutable& peFile,
-            DebugLoop& debugger, 
+            DebugLoop& debugger,
             list<Module>& modules,
             string_view const& arguments,
             string_view const& executableName) :
@@ -133,7 +133,7 @@ namespace Injector
             _debugger.MainThread->Suspend();
 
             _loaderThreadInfo = &_debugger.ThreadMgr.Create(
-                static_cast<ThreadStartRoutine>(static_cast<Address>(_waiterVmh.Pointer())), 
+                static_cast<ThreadStartRoutine>(static_cast<Address>(_waiterVmh.Pointer())),
                 nullptr, CREATE_SUSPENDED);
 
             _waiterBp = _waiterVmh.Pointer(WaiterBreakpointOffset);
@@ -151,8 +151,8 @@ namespace Injector
 
         void OnDllLoaded(DebugLoop& sender, DllInfo& dllInfo)
         {
-            spdlog::trace("[Debug event] dll \"{0}\" ({1}) loaded at [0x{2:x}], image size: {3} bytes, checksum: 0x{4:X} ({4:d})", 
-                dllInfo.FileName, dllInfo.FVI.OriginalFilename, 
+            spdlog::trace("[Debug event] dll \"{0}\" ({1}) loaded at [0x{2:x}], image size: {3} bytes, checksum: 0x{4:X} ({4:d})",
+                dllInfo.FileName, dllInfo.FVI.OriginalFilename,
                 (uint32_t) dllInfo.Handle, dllInfo.ImageSize, dllInfo.Checksum);
             auto dllPath = std::filesystem::path{ dllInfo.FileName };
             auto dllName = dllPath.filename().string();
@@ -176,7 +176,7 @@ namespace Injector
                 spdlog::trace("::FreeLibrary = 0x{0:x}", (uint32_t) _kernel.FreeLibraryFunc);
             }
         }
-        
+
         //void OnThreadSingleStep(Debugger& dbg, Thread& thread, Address address)
         void OnWaiterBreakpoint(DebugLoop::Breakpoint& bp, DebugLoop& sender, Thread& thread)
         {
@@ -196,7 +196,7 @@ namespace Injector
                     throw;
                 _loaderThreadInfo->GetContext(CONTEXT_FULL);
                 Address const nextInstruction = _waiterVmh.Pointer();
-                _loaderThreadInfo->Context.Eip = reinterpret_cast<DWORD>(nextInstruction);            
+                _loaderThreadInfo->Context.Eip = reinterpret_cast<DWORD>(nextInstruction);
                 _loaderThreadInfo->SetContext(CONTEXT_FULL);
             }
         }
@@ -204,22 +204,22 @@ namespace Injector
         void InitLL()
         {
             spdlog::info("Prepare module loading program (it invokes LoadLibraryA for a list of modules)...");
-            
+
             _moduleRetriever = new ModuleRetriever { _debugger.Memory, _kernel, _modules };
             _moduleRetrieverBp = static_cast<BYTE*>(_moduleRetriever->breakpoint());
             spdlog::trace("::breakpoint = [0x{0:x}]", (uint32_t) _moduleRetrieverBp);
             auto& mrbp = _debugger.AddBreakpoint(_moduleRetrieverBp);
-            mrbp.OnReached += 
+            mrbp.OnReached +=
                 [this] (DebugLoop::Breakpoint& bp, DebugLoop& sender, Thread& thread)
                     {    OnLLBreakpoint(bp, sender, thread);    };
 
             _loaderThreadInfo->GetContext(CONTEXT_FULL);
             Address const nextInstruction = _moduleRetriever->instruction();
-            _loaderThreadInfo->Context.Eip = reinterpret_cast<DWORD>(nextInstruction);            
+            _loaderThreadInfo->Context.Eip = reinterpret_cast<DWORD>(nextInstruction);
             _loaderThreadInfo->SetContext(CONTEXT_FULL);
             spdlog::info("Run module loading program. (at [0x{0:x}])...", (uint32_t) nextInstruction);
         }
-        
+
         void OnLLBreakpoint(DebugLoop::Breakpoint& bp, DebugLoop& sender, Thread& thread)
         {
             spdlog::info("Module loading program executed.");
@@ -240,7 +240,7 @@ namespace Injector
             auto& hrbp = _debugger.AddBreakpoint(_hookRetrieverBp);
             hrbp.OnReached +=
                 [this] (DebugLoop::Breakpoint& bp, DebugLoop& sender, Thread& thread)
-                    { OnGPABreakpoint(bp, sender, thread); };    
+                    { OnGPABreakpoint(bp, sender, thread); };
 
             thread.GetContext(CONTEXT_FULL);
             Address const nextInstruction = _hookRetriever->instruction();

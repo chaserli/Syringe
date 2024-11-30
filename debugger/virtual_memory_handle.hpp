@@ -14,7 +14,7 @@
 class VirtualMemoryHandle final
 {
 public:
-    struct OutOfRangeException : std::runtime_error 
+    struct OutOfRangeException : std::runtime_error
     {
         VirtualMemoryHandle const& Handle;
         void*               const  Where;
@@ -59,7 +59,7 @@ public:
     VirtualMemoryHandle(HANDLE process, LPVOID address, SIZE_T size, bool freeMemory = true) noexcept
         : _process(process), _freeMemory(freeMemory)
     {
-        if (process && size) 
+        if (process && size)
         {
             this->_value = VirtualAllocEx(process, address, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
             _size = size;
@@ -67,7 +67,7 @@ public:
     }
     VirtualMemoryHandle(LPVOID allocated, SIZE_T size, HANDLE process, bool freeMemory = true) noexcept
         : _value(allocated), _process(process), _size(size), _freeMemory(freeMemory) { }
-    
+
     VirtualMemoryHandle(VirtualMemoryHandle&& other) noexcept :
         _value(std::exchange(other._value, nullptr)),
         _process(std::exchange(other._process, nullptr)),
@@ -87,7 +87,7 @@ public:
 
     VirtualMemoryHandle(VirtualMemoryHandle const&) = delete;
     VirtualMemoryHandle& operator=(VirtualMemoryHandle& other) = delete;
-    
+
     ~VirtualMemoryHandle() noexcept
     {
         if (_freeMemory && this->_value && this->_process)
@@ -100,12 +100,12 @@ public:
     size_t Size() const noexcept { return _size; }
     BYTE* Pointer(size_t offset = 0) const noexcept { return static_cast<BYTE*>(this->_value) + offset; }
     BYTE* operator[](size_t offset) const {  return static_cast<BYTE*>(_value) + offset; }
-    
+
     void Write(void* const data, size_t count, size_t offset = 0) const
     {
         BYTE* dest = operator[](offset);
         BYTE* pLast = dest + count;
-    
+
         BYTE* max = operator[](_size);
         if (max < pLast)
             throw OutOfRangeException { *this, (void*) dest, count };
@@ -115,16 +115,16 @@ public:
             throw WriteMemoryException { *this, (void*) dest, count, writtenCount };
         if (writtenCount != count)
             throw WriteMemoryException { *this, (void*) dest, count, writtenCount };
-    }    
+    }
     void Read(size_t offset, size_t count, void* const buffer) const
     {
         BYTE* pFirst = operator[](offset);
         BYTE* pLast = pFirst + count;
-    
+
         BYTE* max = operator[](_size);
         if (max < pLast)
             throw OutOfRangeException { *this, (void*) pFirst, count };
-    
+
         SIZE_T readdenBytes;
         const bool result = ReadProcessMemory(_process, pFirst, buffer, count, &readdenBytes) != FALSE;
         if (!result)

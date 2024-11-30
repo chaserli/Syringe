@@ -11,10 +11,10 @@ namespace Injector
     using PECOFF::LoadLibraryFunction;
 
     struct library_name_out_of_range_error : std::exception {};
-    
+
     BYTE const LoadLibraryCodeData[] =
     {
-        PUSH_INTO_STACK(INIT_PTR), // 0, 1-2-3-4 - pointer to libname, 
+        PUSH_INTO_STACK(INIT_PTR), // 0, 1-2-3-4 - pointer to libname,
         CALL_PTR32(INIT_PTR), // 5-6, 7-8-9-10 - pointer to imported in process LoadLibraryA function.
         MOV_EAX_TO(INIT_PTR), // 11, 12-13-14-15 - address for handle. It is return value of the function.
     };
@@ -45,9 +45,9 @@ namespace Injector
     static constexpr size_t LoadLibraryCodeSize = sizeof(LoadLibraryCode);
     #pragma pack(pop)
     static_assert(LoadLibraryCodeDataSize == LoadLibraryCodeSize, "The code and data are not equals");
-    
+
     class LoadLibraryCodeHandle final
-    {        
+    {
         ProcessMemory& _processMemory;
 
         size_t _libraryNameLength = 0;
@@ -58,17 +58,17 @@ namespace Injector
         VirtualMemoryHandle& _handleMemoryHandle;
 
         LoadLibraryCode _code;
-        VirtualMemoryHandle& _codeMemoryHandle;    
+        VirtualMemoryHandle& _codeMemoryHandle;
 
     public:
         LoadLibraryCodeHandle(
-            LoadLibraryFunction loadLibFunction, 
+            LoadLibraryFunction loadLibFunction,
             ProcessMemory& processMemory) :
                 _processMemory(processMemory),
                 _libraryNameMemoryHandle(processMemory.Allocate(MaxLibraryNameLength + 1)),
                 _handleMemoryHandle(processMemory.Allocate(sizeof(HMODULE))),
                 _codeMemoryHandle(processMemory.Allocate(LoadLibraryCodeDataSize))
-        {            
+        {
             memcpy(&_code, LoadLibraryCodeData, LoadLibraryCodeDataSize);
 
             _code.LoadLibraryA     = loadLibFunction;
@@ -93,7 +93,7 @@ namespace Injector
         {
             if (libraryName.size() > MaxLibraryNameLength)
                 throw library_name_out_of_range_error();
-            
+
             _libraryNameMemoryHandle.Write(const_cast<char*>(libraryName.data()), libraryName.size() + 1, 0);
 
             _libraryNameLength = libraryName.size();
@@ -108,7 +108,7 @@ namespace Injector
         }
 
         HMODULE Handle() const
-        { 
+        {
             _handleMemoryHandle.Read(0, sizeof(HMODULE), const_cast<HMODULE*>(&_handleBuffer));
 
             return _handleBuffer;

@@ -47,6 +47,6 @@ namespace Injector
     using InitFunction      = DWORD(__cdecl*)(Injector::InjectionContext* pInjectionContext);
 
     using HandshakeFunction = HRESULT(__cdecl* )(Injector::HandshakeInfo* pHandshakeInfo);
-}    
+}
 
 #endif //INJECTOR_TYPEDEFS_HPP

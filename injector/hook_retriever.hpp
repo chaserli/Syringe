@@ -40,7 +40,7 @@ namespace Injector
             Kernel32& kernel,
             list<Module>& modules);
         ~HookRetriever();
-        
+
         Address breakpoint() const;
         Address instruction() const;
     };

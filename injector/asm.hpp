@@ -75,7 +75,7 @@ static size_t constexpr CallR32InstructionLength = 5;
 #define PUSHFD                        0x9C
 #define POPFD                         0x9D
 #define PUSH_ESP                      0x54
-#define ADD_ESP(imm8)                 0x83, 0xC4, imm8 
+#define ADD_ESP(imm8)                 0x83, 0xC4, imm8
 #define PUSH_INTO_STACK(imm32)        0x68, imm32
 #define ADD_PTR32_IMM32(ptr32, imm32) 0x81, 0x05, ptr32, imm32
 #define MOV_EAX_TO(ptr32)             0xA3, ptr32
@@ -124,11 +124,11 @@ struct _rel_cmd
 {
     std::string       Mnemonic;
     std::vector<BYTE> Command;
-    
+
     size_t            Size;
     size_t            OffsetStart;
 
-    _rel_cmd(std::string mnemonic, size_t size, size_t offsetStart, std::vector<BYTE> command) 
+    _rel_cmd(std::string mnemonic, size_t size, size_t offsetStart, std::vector<BYTE> command)
         : Mnemonic(mnemonic), Size(size), OffsetStart(offsetStart), Command(command)
     {}
     _rel_cmd() = default;
@@ -136,7 +136,7 @@ struct _rel_cmd
 struct relative_jump_info
 {
     bool     IsRelativeJump;
-    // Offset in bytes from command start to jump command offset 
+    // Offset in bytes from command start to jump command offset
     size_t   Offset;
     _rel_cmd Cmd;
 

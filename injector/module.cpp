@@ -13,14 +13,14 @@ namespace Injector
         auto const base    = _pe.PEHeader.OptionalHeader.ImageBase;
         auto const begin   = hostsSection.PointerToRawData;
         auto const end     = begin + hostsSection.SizeOfRawData;
-        
+
         for (auto ptr = begin; ptr < end; ptr += sizeof(HostDecl))
         {
             std::string hostName;
             HostDecl h;
             if (PE::read_bytes(_ifs, ptr, sizeof(HostDecl), &h)    && h.NamePtr &&
                 PE::read_cstring(_ifs, PE::virtual_to_raw(h.NamePtr - base, _pe.Sections), hostName))
-            { 
+            {
                 Hosts.emplace_back(hostName, h.Checksum);
             }
         }
@@ -49,7 +49,7 @@ namespace Injector
                     {
                         Hook& hook     = Hooks.emplace_back(functionName, h);
                         hook.Placement = reinterpret_cast<Address>(h.Address);
-                        hook.Size      = h.Size;            
+                        hook.Size      = h.Size;
                     }
                 }
             }
@@ -82,7 +82,7 @@ namespace Injector
                     {
                         Hook& hook          = Hooks.emplace_back(functionName, h);
                         hook.Placement      = reinterpret_cast<Address>(h.Address);
-                        hook.Size           = h.Size;                
+                        hook.Size           = h.Size;
                         hook.ModuleName     = moduleName;
                         hook.ModuleChecksum = h.ModuleChecksum;
                     }
@@ -116,7 +116,7 @@ namespace Injector
                     if (PE::read_cstring(_ifs, PE::virtual_to_raw(fr.FunctionNamePtr - base, _pe.Sections), functionName) &&
                         PE::read_cstring(_ifs, PE::virtual_to_raw(fr.ModuleNamePtr - base, _pe.Sections), moduleName) &&
                         PE::read_cstring(_ifs, PE::virtual_to_raw(fr.OriginalFunctionNamePtr - base, _pe.Sections), originalName)
-                        
+
                     ) {
                         Hook& hook = Hooks.emplace_back(functionName, fr);
                         hook.PlacementFunction = originalName;
@@ -176,10 +176,10 @@ namespace Injector
             size_t      size    = 0;
             Address     address = nullptr;
 
-            if (sscanf_s(line.c_str(), "%p = %[^ \t;,\r\n] , %x", 
-                &address, 
+            if (sscanf_s(line.c_str(), "%p = %[^ \t;,\r\n] , %x",
+                &address,
                 functionName.data(),
-                MaxFunctionNameLength, 
+                MaxFunctionNameLength,
                 &size) >= 2)
             {
                 Hook& hook     = Hooks.emplace_back(functionName, address, size);
@@ -248,7 +248,7 @@ namespace Injector
     {
         auto executablePath     = std::filesystem::path(executableFile);
         auto executableFileName = executablePath.stem().string();
-    
+
         auto iter = std::find_if(Hosts.cbegin(), Hosts.cend(), [&executableFileName, &checksum](Host const& item) -> bool
         {
             return executableFileName == item.FileName && (checksum == 0 || checksum == item.Checksum);

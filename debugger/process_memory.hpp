@@ -17,17 +17,17 @@ class ProcessMemory final
 private:
     HANDLE _process { nullptr };
     bool _freeMemory = true;
-    
+
 public:
     std::list<VirtualMemoryHandle> MemoryHandles;
-    
+
     ProcessMemory() noexcept = default;
     ProcessMemory(HANDLE process, bool freeMemory = true) : _process(process), _freeMemory(freeMemory) { }
     ~ProcessMemory() = default;
 
     ProcessMemory(ProcessMemory& other) = delete;
     ProcessMemory& operator=(ProcessMemory& other) = delete;
-    
+
     ProcessMemory(ProcessMemory&& other) noexcept :
         _process(std::exchange(other._process, nullptr)),
         MemoryHandles(std::exchange(other.MemoryHandles, {})) { }
@@ -46,7 +46,7 @@ public:
         return result;
     }
     bool Write(void* address, void const* buffer, DWORD size) { return (WriteProcessMemory(_process, address, buffer, size, nullptr) != FALSE); }
-    
+
     VirtualMemoryHandle& Allocate(size_t size)
     {
         return MemoryHandles.emplace_back(_process, size, _freeMemory);
@@ -65,15 +65,15 @@ public:
         vmh.Write(&val, size, 0);
         return vmh;
     }
-    
+
     bool Free(VirtualMemoryHandle& handle)
     {
         std::list<VirtualMemoryHandle>::iterator iterator = std::find(MemoryHandles.begin(), MemoryHandles.end(), handle);
         const bool contains = iterator != MemoryHandles.end();
-        if (contains)            
+        if (contains)
             MemoryHandles.erase(iterator);
         return contains;
-    }    
+    }
 
     bool IsVirtualAddress(Address address) const noexcept
     {

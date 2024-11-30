@@ -2,7 +2,7 @@
 
 namespace Injector
 {
-    HookInjector::HookInjector(Debugger::DebugLoop& dbgr, list<Module>& modules)    
+    HookInjector::HookInjector(Debugger::DebugLoop& dbgr, list<Module>& modules)
             : Memory(dbgr.Memory), Modules(modules)
     {
         auto executableChecksum = CRC32::compute_stream(file_open_binary(dbgr.ExecutablePath));
@@ -16,7 +16,7 @@ namespace Injector
                 continue;
             }
             spdlog::info("Module: \"{0}\" [0x{1:x}] now processing hooks:", mdl.FileName, (uint32_t) handle);
-            
+
             for (auto& hook : mdl.Hooks)
             {
                 bool isInExecutable = hook.ModuleName.empty();
@@ -32,7 +32,7 @@ namespace Injector
                 auto placement = hook.Placement;
                 if (!isInExecutable)
                 {
-                    auto inProcessDll = std::find_if(dbgr.Dlls.cbegin(), dbgr.Dlls.cend(), 
+                    auto inProcessDll = std::find_if(dbgr.Dlls.cbegin(), dbgr.Dlls.cend(),
                         [&hook, &dbgr](DllMap::value_type pair) -> bool
                         {
                             auto ofnp = std::filesystem::path(pair.second.FVI.Loaded ? pair.second.FVI.OriginalFilename : pair.second.FileName);
@@ -44,7 +44,7 @@ namespace Injector
                     );
                     if (inProcessDll == dbgr.Dlls.cend())
                     {
-                        spdlog::info("::Hook \"{0}\" target module \"{1}\" not found, skip.", 
+                        spdlog::info("::Hook \"{0}\" target module \"{1}\" not found, skip.",
                             hook.FunctionName,
                             hook.ModuleName
                         ); continue;
@@ -68,7 +68,7 @@ namespace Injector
                 );
 
                 string logAddition, logAddition2;
-                
+
                 switch (hook.Type)
                 {
                     case(HookType::Generic): {}
@@ -123,7 +123,7 @@ namespace Injector
         for (auto& pair : Pockets)
         {
             HookPocket& pocket = pair.second;
-                        
+
             size_t const overridenCount = pocket.OverriddenCount;
             if (overridenCount < 5)
                 pocket.OverriddenCount = 5;
@@ -157,22 +157,22 @@ namespace Injector
 
         DWORD refNextInstruction = reinterpret_cast<DWORD>(NextInstructionsVmh->Pointer(0));
         size_t offset = 0;
-        
+
         spdlog::info("Hook program block assembling...");
         for (auto& pair : Pockets)
-        {                
+        {
             Address const hookAddr = pair.first;
             HookPocket& pocket = pair.second;
             pocket.Offset = offset;
 
             Address const jumpBase   = reinterpret_cast<BYTE*>(hookAddr) + JumpR32lInstructionLength;
             Address const jumpOffset = ProgramVmh->Pointer(offset);
-            
+
             pocket.HookCallerBlockCode.Offset = relative_offset(jumpBase, jumpOffset);
             Memory.Write(hookAddr, &pocket.HookCallerBlockCode, JumpCodeSize);
-            
+
             pocket.RegistersBuild.HookAddress = hookAddr;
-            for (Hook* hook : pocket.Hooks)                
+            for (Hook* hook : pocket.Hooks)
             {
                 Address const base = ProgramVmh->Pointer(offset);
                 pocket.HookCallBlocks.emplace_back(
@@ -252,10 +252,10 @@ namespace Injector
             Address const jumpBackBase = ProgramVmh->Pointer(offset);
             Address const jumpBackAddress = reinterpret_cast<BYTE*>(hookAddr) + max(JumpR32lInstructionLength, pocket.OverriddenCount);
             pocket.JumpBackCode.Offset = relative_offset(jumpBackBase, jumpBackAddress, JumpR32lInstructionLength);
-            
+
             ProgramVmh->Write(&pocket.JumpBackCode, jumpBackSize, offset);
             offset += jumpBackSize;
-            
+
             refNextInstruction++;
         }
 
@@ -269,7 +269,7 @@ namespace Injector
 
             redefine.second.FacadeCallerBlockCode.Offset = relative_offset(jumpBase, jumpTo);
             dbgr.Memory.Write(placement, &redefine.second.FacadeCallerBlockCode, JumpCodeSize);
-            spdlog::info("::0x{0:x} --> 0x{1:x} ({2})", 
+            spdlog::info("::0x{0:x} --> 0x{1:x} ({2})",
                 placement, jumpTo, hook->FunctionName
             );
         }

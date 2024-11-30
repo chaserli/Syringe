@@ -35,7 +35,7 @@ namespace Injector
 
             LoadLibraryCode& block = CodeBlocks.emplace_back(
                 static_cast<LPCSTR>(refLibName),
-                llFunc, 
+                llFunc,
                 static_cast<HMODULE*>(refModuleHandle));
         }
 

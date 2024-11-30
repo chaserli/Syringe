@@ -27,7 +27,7 @@ namespace Debugger
     * @brief Thrid, it will notice when access violation occurs.
     */
     class DebugLoop
-    {        
+    {
     public:
         struct Breakpoint;
 
@@ -40,7 +40,7 @@ namespace Debugger
         using ThreadEvent            = ObjectEvent<DebugLoop, Thread&, Address>;
         using DllEvent               = ObjectEvent<DebugLoop, DllInfo&>;
         using DebuggerEvent          = ObjectEvent<DebugLoop>;
-        using ThreadActionEvent      = ObjectEvent<DebugLoop, Thread&>; 
+        using ThreadActionEvent      = ObjectEvent<DebugLoop, Thread&>;
 
         using BreakpointMap          = map<Address, Breakpoint>;
 
@@ -56,7 +56,7 @@ namespace Debugger
             using Event = ObjectEvent<Breakpoint, DebugLoop&, Thread&>;
 
             Event   OnReached;
-            
+
             Address Addr;
             BYTE    OpCode;
             bool    IsWritten;
@@ -64,7 +64,7 @@ namespace Debugger
             Breakpoint() noexcept;
             Breakpoint(Address address);
             ~Breakpoint();
-            
+
             Breakpoint(Breakpoint&& other) noexcept;
             Breakpoint& operator=(Breakpoint&& other) noexcept;
 
@@ -97,8 +97,8 @@ namespace Debugger
         CREATE_PROCESS_DEBUG_INFO  ProcessDebugInfo{};
         PROCESS_INFORMATION        ProcessInfo{};
         //MODULEINFO               ProcessModuleInfo;
-                
-        BreakpointMap              Breakpoints;        
+
+        BreakpointMap              Breakpoints;
         DllMap                     Dlls;
 
         Thread*                    MainThread;
@@ -117,19 +117,19 @@ namespace Debugger
         ~DebugLoop();
         DllInfo& Find(string_view const& dllBaseName);
         ProcessHandle Process() const { return _dbgProcessHandle; }
-        
+
         void SetBreakpoint(Address address);
         void SetBreakpoint(Breakpoint& bp);
         void RestoreBreakpoint(Address address);
         void RestoreOpcode(Breakpoint& bp);
         Breakpoint& AddBreakpoint(Address address, bool write = true);
         bool RemoveBreakpoint(Address address);
-        
+
         void Run();
     private:
         DWORD HandleException(DEBUG_EVENT& dbgEvent);
         DWORD HandleBreakpoint(DEBUG_EVENT& dbgEvent);
-        DWORD HandleSingleStep(DEBUG_EVENT& dbgEvent);        
+        DWORD HandleSingleStep(DEBUG_EVENT& dbgEvent);
         DWORD HandleAccessViolation(DEBUG_EVENT& dbgEvent);
     };
 }

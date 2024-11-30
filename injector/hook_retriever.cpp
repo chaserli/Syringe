@@ -29,12 +29,12 @@ namespace Injector
 
         FuncNamesVmh                   = &Memory.Allocate(ProcNameLength * TotalHookCount);
         HookFunctionsVmh               = &Memory.Allocate(sizeof(FARPROC) * TotalHookCount);
-        
-        CodeBlocks.reserve(TotalHookCount + Modules.size());                
-        
+
+        CodeBlocks.reserve(TotalHookCount + Modules.size());
+
         size_t thkIndex = 0;
         for (size_t index = 0; index < Modules.size(); ++index)
-        {                
+        {
             Module& mdl    = *std::next(Modules.begin(), index);
             HMODULE handle = mdl.get_handle();
 
@@ -49,7 +49,7 @@ namespace Injector
                 CodeBlocks.emplace_back((LPCSTR) funcName, handle, Kernel.GetProcAddressFunc, (FARPROC*) refHookFunction);
             }
         }
-        
+
         size_t const codeSize    = CodeBlocks.size() * sizeof(GetProcAddressCode);
         size_t const base        = PrefixCodeSize + codeSize;
         size_t const programSize = base + PostfixCodeSize;
@@ -69,7 +69,7 @@ namespace Injector
         Memory.Free(*HookFunctionsVmh);
         Memory.Free(*ProgramVmh);
     }
-    
+
     Address HookRetriever::breakpoint()  const { return ProgramVmh->Pointer(BreakpointOffset); }
     Address HookRetriever::instruction() const { return ProgramVmh->Pointer(); }
 }
