@@ -37,10 +37,10 @@ set_target_properties(syringe PROPERTIES
     WIN32_EXECUTABLE $<$<NOT:$<CONFIG:Debug>>:ON>
 )
 
-find_package(fmt CONFIG REQUIRED)
+# find_package(fmt CONFIG REQUIRED)
 target_link_libraries(syringe PUBLIC fmt::fmt-header-only)
 
-find_package(spdlog CONFIG REQUIRED)
+# find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(syringe PUBLIC spdlog::spdlog_header_only)
 
 target_link_libraries (syringe LINK_PUBLIC -Wl,--allow-multiple-definition debugger_lib -Wl,--allow-multiple-definition)

@@ -8,16 +8,8 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-if(WIN32)
-	message("OS: WIN32")
-elseif(UNIX)
-	message("OS: UNIX")
-else()
-	message("OS: OTHER")
-endif()
-
-include_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
-link_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+add_subdirectory("3rdparty/fmt")
+add_subdirectory("3rdparty/spdlog")
 
 project("Injector")
 #add_subdirectory("utilities")
